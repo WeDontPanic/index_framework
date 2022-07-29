@@ -26,8 +26,10 @@ impl Postings {
 }
 
 impl IndexPostings for Postings {
+    type List = Vec<u32>;
+
     #[inline]
-    fn get_posting(&self, id: u32) -> Vec<u32> {
+    fn get_posting(&self, id: u32) -> Self::List {
         self.get(id).cloned().unwrap_or_default()
     }
 
@@ -48,9 +50,10 @@ impl IndexPostings for Postings {
 
 impl BuildPostings for Postings {
     type Output = Self;
+    type PostingList = Vec<u32>;
 
     #[inline]
-    fn from_map(map: HashMap<u32, Vec<u32>>) -> Self {
+    fn from_map(map: HashMap<u32, Self::PostingList>) -> Self {
         Self::from_map(map)
     }
 

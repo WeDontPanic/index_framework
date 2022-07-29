@@ -5,23 +5,19 @@ use crate::{
         deser::DeSer,
         dict_item::DictItem,
         dictionary::BuildIndexDictionary,
-        postings::BuildPostings,
+        postings::{BuildPostings, IndexPostings},
         storage::BuildIndexStorage,
     },
     Index,
 };
-use std::{
-    collections::{HashMap, HashSet},
-    hash::Hash,
-    marker::PhantomData,
-};
+use std::{collections::HashMap, hash::Hash, marker::PhantomData};
 
 /// Generic builder for memory indexes
 pub struct MemIndexBuilder<B, T, S, DD, SS, PP> {
-    dict: DD,
-    storage: SS,
-    postings: HashMap<u32, HashSet<u32>>,
-    term_map: HashMap<T, u32>,
+    pub dict: DD,
+    pub storage: SS,
+    pub postings: HashMap<u32, Vec<u32>>,
+    pub term_map: HashMap<T, u32>,
     p: PhantomData<S>,
     b: PhantomData<B>,
     pp: PhantomData<PP>,
@@ -34,7 +30,7 @@ where
     S: DeSer,
     DD: BuildIndexDictionary<T, Output = B::Dict>,
     SS: BuildIndexStorage<S, Output = B::Storage>,
-    PP: BuildPostings<Output = B::Postings>,
+    PP: BuildPostings<Output = B::Postings, PostingList = <B::Postings as IndexPostings>::List>,
 {
     #[inline]
     pub fn new() -> Self {
@@ -52,6 +48,31 @@ where
             pp: PhantomData,
         }
     }
+
+    #[inline]
+    pub fn dict(&self) -> &DD {
+        &self.dict
+    }
+
+    #[inline]
+    pub fn storage(&self) -> &SS {
+        &self.storage
+    }
+
+    #[inline]
+    pub fn postings(&self) -> &HashMap<u32, Vec<u32>> {
+        &self.postings
+    }
+
+    #[inline]
+    pub fn term_map(&self) -> &HashMap<T, u32> {
+        &self.term_map
+    }
+
+    #[inline]
+    pub fn postings_mut(&mut self) -> &mut HashMap<u32, Vec<u32>> {
+        &mut self.postings
+    }
 }
 
 impl<B, T, S, DD, SS, PP> IndexBuilder<T, S> for MemIndexBuilder<B, T, S, DD, SS, PP>
@@ -61,9 +82,10 @@ where
     S: DeSer,
     DD: BuildIndexDictionary<T, Output = B::Dict>,
     SS: BuildIndexStorage<S, Output = B::Storage>,
-    PP: BuildPostings<Output = B::Postings>,
+    PP: BuildPostings<Output = B::Postings, PostingList = <B::Postings as IndexPostings>::List>,
+    <<B as Backend<T, S>>::Postings as IndexPostings>::List: FromIterator<u32>,
 {
-    type Output = B;
+    type ForBackend = B;
 
     fn insert_term(&mut self, term: T) -> Result<u32, u32> {
         if let Some(id) = self.term_map.get(&term) {
@@ -85,11 +107,11 @@ where
     #[inline]
     fn map(&mut self, item: u32, terms: &[u32]) {
         for term in terms {
-            self.postings.entry(*term).or_default().insert(item);
+            self.postings.entry(*term).or_default().push(item);
         }
     }
 
-    fn build(mut self) -> Index<Self::Output, T, S> {
+    fn build(mut self) -> Index<Self::ForBackend, T, S> {
         self.dict.finish();
 
         let postings: HashMap<_, _> = self

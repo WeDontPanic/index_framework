@@ -7,7 +7,7 @@ where
     T: DictItem,
     S: DeSer,
 {
-    type Output: Backend<T, S>;
+    type ForBackend: Backend<T, S>;
 
     /// Inserts a new term into the builders dictionary. Returns `Ok(ID)` if the term was added
     /// And Err(ID) if the term already exists.
@@ -27,5 +27,5 @@ where
     }
 
     /// Generate the index
-    fn build(self) -> Index<Self::Output, T, S>;
+    fn build(self) -> Index<Self::ForBackend, T, S>;
 }
