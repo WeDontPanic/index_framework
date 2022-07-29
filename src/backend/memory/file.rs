@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+/// An In-memory indexable "file" that allows inserting, getting and replacing
+/// variable length [u8] arrays using an ID.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct MemFile {
     data: Vec<u8>,

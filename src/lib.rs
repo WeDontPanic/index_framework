@@ -29,8 +29,8 @@ where
     }
 
     #[inline]
-    pub fn open<P: AsRef<Path>>(&self, path: P) -> Result<Self, B::OpenError> {
-        Ok(Self::new(B::open(path)?))
+    pub fn open<P: AsRef<Path>>(&self, path: P) -> Option<Self> {
+        Some(Self::new(B::open(path)?))
     }
 }
 

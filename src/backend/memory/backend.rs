@@ -5,7 +5,7 @@ use crate::traits::{
     dict_item::DictItem,
 };
 use serde::{Deserialize, Serialize};
-use std::{fs::File, io::BufReader, path::Path};
+use std::io::Read;
 
 /// Completely in memory index backend
 #[derive(Serialize, Deserialize)]
@@ -23,14 +23,12 @@ where
     type Dict = Dictionary<D>;
     type Postings = Postings;
     type Storage = Storage<S>;
-    type OpenError = ();
 
-    fn open<P: AsRef<Path>>(file: P) -> Result<Self, Self::OpenError>
+    fn decode_from<R: Read>(reader: R) -> Option<Self>
     where
         Self: Sized,
     {
-        let r = BufReader::new(File::open(file).map_err(|_| ())?);
-        bincode::deserialize_from(r).map_err(|_| ())
+        bincode::deserialize_from(reader).ok()
     }
 
     #[inline]
