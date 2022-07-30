@@ -11,7 +11,7 @@ use std::io::Read;
 #[derive(Serialize, Deserialize)]
 pub struct MemoryBackend<D, S> {
     dict: Dictionary<D>,
-    postings: Postings,
+    postings_list: Vec<Postings>,
     storage: Storage<S>,
 }
 
@@ -42,13 +42,17 @@ where
     }
 
     #[inline]
-    fn postings(&self) -> &Self::Postings {
-        &self.postings
+    fn postings(&self, id: u32) -> Option<&Self::Postings> {
+        self.postings_list.get(id as usize)
     }
 
     #[inline]
     fn storage(&self) -> &Self::Storage {
         &self.storage
+    }
+
+    fn posting_count(&self) -> usize {
+        self.postings_list.len()
     }
 }
 
@@ -58,10 +62,10 @@ where
     S: DeSer,
 {
     #[inline]
-    fn new(dict: Self::Dict, postings: Self::Postings, storage: Self::Storage) -> Self {
+    fn new(dict: Self::Dict, postings_list: Vec<Self::Postings>, storage: Self::Storage) -> Self {
         Self {
             dict,
-            postings,
+            postings_list,
             storage,
         }
     }

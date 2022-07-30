@@ -17,12 +17,12 @@ where
     fn insert_item(&mut self, item: S) -> u32;
 
     // Manually maps an item-id to term-ids in the inverted index
-    fn map(&mut self, item: u32, terms: &[u32]);
+    fn map(&mut self, postings_id: u32, item: u32, terms: &[u32]);
 
     // Inserts an item into the index and directly maps it
-    fn index_item(&mut self, item: S, terms: &[u32]) -> u32 {
+    fn index_item(&mut self, postings_id: u32, item: S, terms: &[u32]) -> u32 {
         let item_id = self.insert_item(item);
-        self.map(item_id, terms);
+        self.map(postings_id, item_id, terms);
         item_id
     }
 

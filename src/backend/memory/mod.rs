@@ -4,5 +4,6 @@ pub mod compr_postings;
 pub mod compr_storage;
 pub mod dict;
 pub mod file;
+pub mod fix_len_dic;
 pub mod postings;
 pub mod storage;

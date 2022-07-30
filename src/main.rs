@@ -55,7 +55,7 @@ fn main() {
         Dictionary<_>,
         Storage<_>,
         Postings,
-    > = MemIndexBuilder::new();
+    > = MemIndexBuilder::new(1);
 
     let res = resources::load_raw("./storage_data").unwrap();
     let wlen = res.words().count();
@@ -86,7 +86,7 @@ fn main() {
             tids.push(e);
         }
 
-        builder.index_item(word.sequence, &tids);
+        builder.index_item(0, word.sequence, &tids);
 
         if pos % 100 == 0 {
             print!("\r{pos}/{wlen}");
@@ -101,7 +101,7 @@ fn main() {
     println!("Total index size: {}", index.encode().len());
 
     let storage_size = index.storage().encode_vec().len();
-    let posting_size = index.postings().encode_vec().len();
+    let posting_size = index.postings(0).unwrap().encode_vec().len();
     let dict_size = index.dict().encode_vec().len();
     println!("Storage size: {storage_size}");
     println!("Postings size: {posting_size}");

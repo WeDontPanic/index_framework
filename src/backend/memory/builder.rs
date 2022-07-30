@@ -16,7 +16,7 @@ use std::{collections::HashMap, hash::Hash, marker::PhantomData};
 pub struct MemIndexBuilder<B, T, S, DD, SS, PP> {
     pub dict: DD,
     pub storage: SS,
-    pub postings: HashMap<u32, Vec<u32>>,
+    pub postings_list: Vec<HashMap<u32, Vec<u32>>>,
     pub term_map: HashMap<T, u32>,
     p: PhantomData<S>,
     b: PhantomData<B>,
@@ -33,15 +33,19 @@ where
     PP: BuildPostings<Output = B::Postings, PostingList = <B::Postings as IndexPostings>::List>,
 {
     #[inline]
-    pub fn new() -> Self {
+    pub fn new(postings_len: usize) -> Self {
+        if postings_len < 1 {
+            panic!("At least one postings required!");
+        }
+
         let dict = DD::new();
         let storage = SS::new();
-        let postings = HashMap::new();
+        let postings_list: Vec<_> = (0..postings_len).map(|_| HashMap::new()).collect();
         let term_map = HashMap::new();
         Self {
             dict,
             storage,
-            postings,
+            postings_list,
             term_map,
             p: PhantomData,
             b: PhantomData,
@@ -60,8 +64,8 @@ where
     }
 
     #[inline]
-    pub fn postings(&self) -> &HashMap<u32, Vec<u32>> {
-        &self.postings
+    pub fn postings(&self, id: usize) -> Option<&HashMap<u32, Vec<u32>>> {
+        self.postings_list.get(id)
     }
 
     #[inline]
@@ -70,8 +74,8 @@ where
     }
 
     #[inline]
-    pub fn postings_mut(&mut self) -> &mut HashMap<u32, Vec<u32>> {
-        &mut self.postings
+    pub fn postings_mut(&mut self, pos: usize) -> Option<&mut HashMap<u32, Vec<u32>>> {
+        self.postings_list.get_mut(pos)
     }
 }
 
@@ -105,22 +109,31 @@ where
     }
 
     #[inline]
-    fn map(&mut self, item: u32, terms: &[u32]) {
+    fn map(&mut self, postings_id: u32, item: u32, terms: &[u32]) {
+        let postings = self
+            .postings_list
+            .get_mut(postings_id as usize)
+            .expect("Postings with ID {postings_id} not setup!");
         for term in terms {
-            self.postings.entry(*term).or_default().push(item);
+            postings.entry(*term).or_default().push(item);
         }
     }
 
     fn build(mut self) -> Index<Self::ForBackend, T, S> {
         self.dict.finish();
 
-        let postings: HashMap<_, _> = self
-            .postings
+        let postings: Vec<_> = self
+            .postings_list
             .into_iter()
-            .map(|(k, v)| (k, v.into_iter().collect()))
+            .map(|list| {
+                let postings = list
+                    .into_iter()
+                    .map(|(k, v)| (k, v.into_iter().collect()))
+                    .collect();
+                PP::from_map(postings).build()
+            })
             .collect();
 
-        let postings = PP::from_map(postings).build();
         let dict = self.dict.build();
         let storage = self.storage.build();
 
