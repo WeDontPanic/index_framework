@@ -12,10 +12,8 @@ use crate::{
     },
     Index,
 };
-use options::BuildOption;
+use options::{BuildOption, PostingsMod};
 use std::{collections::HashMap, hash::Hash, marker::PhantomData};
-
-use self::options::PostingsMod;
 
 /// Generic builder for memory indexes
 pub struct MemIndexBuilder<B, T, S, DD, SS, PP> {

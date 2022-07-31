@@ -98,6 +98,7 @@ dependencies = [
 [[package]]
 name = "compressed_vec"
 version = "0.1.1"
+source = "git+https://github.com/JojiiOfficial/CompressedVec#e71390a939fcf306b755b094c2fbc45a052f0996"
 dependencies = [
  "bitpacking",
  "byteorder",
@@ -723,6 +724,7 @@ checksum = "43448dcec88f2dc525e8c5b1f5e5a116d3b250879fff04f90c6691dd6865a28b"
 [[package]]
 name = "st_file"
 version = "0.1.0"
+source = "git+https://github.com/JojiiOfficial/st-file#8b3470c82e47a2258be658c6b7c2676ce5a3e515"
 dependencies = [
  "serde",
 ]
