@@ -1,52 +1,54 @@
-use super::file::MemFile;
 use crate::{
-    traits::{
-        dict_item::DictItem,
-        dictionary::{BuildIndexDictionary, IndexDictionary},
-    },
+    traits::dictionary::{BuildIndexDictionary, IndexDictionary},
     utils::bin_search::generic_binary_search,
+    utils::const_arr_deser,
 };
 use compressed_vec::{buffered::BufCVecRef, CVec};
 use serde::{Deserialize, Serialize};
-use std::marker::PhantomData;
 
-/// In memory dictionary where each term has a fixed length
+/// String Dictionary with constant term width
 #[derive(Serialize, Deserialize)]
-pub struct Dictionary<T> {
-    p: PhantomData<T>,
-    data: MemFile,
+pub struct FixDict<const N: usize> {
+    #[serde(with = "const_arr_deser")]
+    data: Vec<[char; N]>,
     sort_index: CVec,
 }
 
-impl<T: DictItem> Dictionary<T> {
+impl<const N: usize> FixDict<N> {
     #[inline]
     pub(crate) fn new() -> Self {
         Self {
-            p: PhantomData,
-            data: MemFile::new(),
+            data: vec![],
             sort_index: CVec::new(),
         }
     }
 
     /// Allows pushing multiple items safely
     #[inline]
-    pub fn multi_push(&mut self) -> MultInsert<T> {
+    pub fn multi_push(&mut self) -> MultInsert<N> {
         MultInsert::new(self)
     }
 
     /// Inserts an item into the dictionary. `reorder` has to be called afterwards
-    pub(crate) fn insert_raw(&mut self, i: T) -> u32 {
-        let enc = i.encode_vec();
-        let item_id = self.data.insert(&enc);
-        assert_eq!(self.data.len() - 1, item_id);
-        self.sort_index.push(item_id as u32);
-        item_id as u32
+    pub(crate) fn insert_raw(&mut self, i: String) -> u32 {
+        let id = self.data.len();
+
+        let chars = Self::char_array(&i);
+
+        self.data.push(chars);
+        self.sort_index.push(id as u32);
+        id as u32
+    }
+
+    #[inline]
+    fn char_array(i: &str) -> [char; N] {
+        i.chars().take(N).collect::<Vec<_>>().try_into().unwrap()
     }
 
     /// Brings the item mapping back in order. Has to be called if changes were made
     /// in the `data` mem-file
     pub(crate) fn reorder(&mut self) {
-        let mut vec = self.sort_index.as_vec();
+        let mut vec = std::mem::take(&mut self.sort_index).as_vec();
         vec.sort_by(|a, b| {
             let a = self.get_term(*a).unwrap();
             let b = self.get_term(*b).unwrap();
@@ -56,23 +58,24 @@ impl<T: DictItem> Dictionary<T> {
     }
 }
 
-impl<T: DictItem> IndexDictionary<T> for Dictionary<T> {
+impl<const N: usize> IndexDictionary<String> for FixDict<N> {
     #[inline]
-    fn get_id(&self, term: &T) -> Option<u32> {
-        let mut buf_reader = BufCVecRef::new(&self.sort_index);
+    fn get_id(&self, term: &String) -> Option<u32> {
+        let mut buf_read = BufCVecRef::new(&self.sort_index);
         let res = generic_binary_search((), self.len(), |_, i| {
-            let pos = *buf_reader.get_buffered(i).unwrap() as u32;
+            let pos = *buf_read.get_buffered(i).unwrap() as u32;
             let bterm = self.get_term(pos).unwrap();
             (bterm.cmp(&term), bterm)
         })
         .ok()?
         .0 as u32;
-        Some(self.sort_index.get(res as usize).unwrap())
+        Some(*buf_read.get_buffered(res as usize).unwrap())
     }
 
     #[inline]
-    fn get_term(&self, id: u32) -> Option<T> {
-        T::decode_vec(self.data.get(id as usize)?)
+    fn get_term(&self, id: u32) -> Option<String> {
+        let data = self.data.get(id as usize)?;
+        Some(data.iter().collect())
     }
 
     #[inline]
@@ -81,7 +84,7 @@ impl<T: DictItem> IndexDictionary<T> for Dictionary<T> {
     }
 }
 
-impl<T: DictItem> BuildIndexDictionary<T> for Dictionary<T> {
+impl<const N: usize> BuildIndexDictionary<String> for FixDict<N> {
     type Output = Self;
 
     #[inline]
@@ -90,7 +93,7 @@ impl<T: DictItem> BuildIndexDictionary<T> for Dictionary<T> {
     }
 
     #[inline]
-    fn insert(&mut self, i: T) -> u32 {
+    fn insert(&mut self, i: String) -> u32 {
         self.insert_raw(i)
     }
 
@@ -105,23 +108,23 @@ impl<T: DictItem> BuildIndexDictionary<T> for Dictionary<T> {
     }
 }
 
-pub struct MultInsert<'a, T: DictItem> {
-    dict: &'a mut Dictionary<T>,
+pub struct MultInsert<'a, const N: usize> {
+    dict: &'a mut FixDict<N>,
 }
 
-impl<'a, T: DictItem> MultInsert<'a, T> {
+impl<'a, const N: usize> MultInsert<'a, N> {
     #[inline]
-    pub(crate) fn new(dict: &'a mut Dictionary<T>) -> Self {
+    pub(crate) fn new(dict: &'a mut FixDict<N>) -> Self {
         Self { dict }
     }
 
     #[inline]
-    pub fn insert(&mut self, item: T) -> u32 {
+    pub fn insert(&mut self, item: String) -> u32 {
         self.dict.insert_raw(item)
     }
 }
 
-impl<'a, T: DictItem> Drop for MultInsert<'a, T> {
+impl<'a, const N: usize> Drop for MultInsert<'a, N> {
     #[inline]
     fn drop(&mut self) {
         self.dict.reorder();
@@ -135,11 +138,11 @@ mod test {
 
     #[test]
     pub fn test_dict() {
-        let inpdict = &["think", "aal", "auch", "zoo", "make"];
+        let inpdict = &["tk", "aa", "ch", "oe", "ke"];
 
         let mut map: HashMap<&str, u32> = HashMap::new();
 
-        let mut dict = Dictionary::<String>::new();
+        let mut dict = FixDict::<2>::new();
         {
             let mut push = dict.multi_push();
             for d in inpdict {

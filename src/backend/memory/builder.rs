@@ -113,7 +113,7 @@ where
         let postings = self
             .postings_list
             .get_mut(postings_id as usize)
-            .expect("Postings with ID {postings_id} not setup!");
+            .expect(&format!("Postings {postings_id} out of index"));
         for term in terms {
             postings.entry(*term).or_default().push(item);
         }

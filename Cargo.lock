@@ -98,7 +98,6 @@ dependencies = [
 [[package]]
 name = "compressed_vec"
 version = "0.1.1"
-source = "git+https://github.com/JojiiOfficial/CompressedVec#2c45e39764f173f0057923f1ba8f4f61395ad714"
 dependencies = [
  "bitpacking",
  "byteorder",

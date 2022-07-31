@@ -86,7 +86,7 @@ fn main() {
             tids.push(e);
         }
 
-        builder.index_item(0, word.sequence, &tids);
+        builder.index_item(1, word.sequence, &tids);
 
         if pos % 100 == 0 {
             print!("\r{pos}/{wlen}");
