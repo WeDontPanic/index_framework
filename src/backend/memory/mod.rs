@@ -1,5 +1,5 @@
 pub mod backend;
-pub mod builder;
+pub mod build;
 pub mod dict;
 pub mod postings;
 pub mod storage;

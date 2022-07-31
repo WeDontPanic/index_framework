@@ -1,7 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use index_framework::{
     backend::memory::{
-        backend::MemoryBackend, builder::MemIndexBuilder, dict::default::Dictionary,
+        backend::MemoryBackend, build::MemIndexBuilder, dict::default::Dictionary,
         postings::compressed::Postings, storage::default::Storage,
     },
     traits::{backend::Backend, build::IndexBuilder, dictionary::IndexDictionary},
@@ -16,7 +16,7 @@ fn get_simple_index() -> Index<MemoryBackend<String, u32>, String, u32> {
         Dictionary<String>,
         Storage<u32>,
         Postings,
-    > = MemIndexBuilder::new(1);
+    > = MemIndexBuilder::new();
 
     let res = resources::load_raw("./storage_data").unwrap();
     for word in res.words().iter() {

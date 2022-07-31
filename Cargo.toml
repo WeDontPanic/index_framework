@@ -13,10 +13,10 @@ itertools = "0.10.3"
 st_file = { path = "../st_file" }
 compressed_vec = { path = "../CompressedVec" }
 #compressed_vec = { git = "https://github.com/JojiiOfficial/CompressedVec" }
-#resources = { path = "/home/jojii/programming/rust/jotoba/lib/resources/" }
 
 [dev-dependencies]
 criterion = "0.3.6"
+resources = { path = "/home/jojii/programming/rust/jotoba/lib/resources/" }
 
 [[bench]]
 name = "my_bench"

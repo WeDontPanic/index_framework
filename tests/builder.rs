@@ -1,6 +1,6 @@
 use index_framework::{
     backend::memory::{
-        builder::MemIndexBuilder,
+        build::MemIndexBuilder,
         dict::default::Dictionary,
         postings::{compressed, default},
         storage::default::Storage,
@@ -74,7 +74,7 @@ where
     BS: BuildIndexStorage<u32, Output = S>,
 {
     let mut builder: MemIndexBuilder<MemBackend<String, u32, D, S, P>, String, u32, BD, BS, BP> =
-        MemIndexBuilder::new(1);
+        MemIndexBuilder::new();
 
     // Maps Term to its ID
     let mut term_id_map: HashMap<String, u32> = HashMap::new();
