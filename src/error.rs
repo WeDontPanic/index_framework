@@ -1,4 +1,7 @@
-use std::{fmt::Display, string::FromUtf8Error};
+use std::{
+    fmt::{Display, Formatter},
+    string::FromUtf8Error,
+};
 
 #[derive(Debug)]
 pub enum Error {
@@ -23,7 +26,7 @@ impl From<FromUtf8Error> for Error {
 impl std::error::Error for Error {}
 
 impl Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }
 }
