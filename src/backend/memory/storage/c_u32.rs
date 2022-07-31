@@ -2,16 +2,16 @@ use crate::traits::storage::IndexStorage;
 use compressed_vec::CVec;
 use serde::{Deserialize, Serialize};
 
-/// An in-memory index storage
-#[derive(Serialize, Deserialize)]
-pub struct Storage {
+/// An in-memory index storage for storing u32 compressed
+#[derive(Serialize, Deserialize, Default)]
+pub struct U32Storage {
     data: CVec,
 }
 
-impl Storage {
+impl U32Storage {
     #[inline]
     pub fn new() -> Self {
-        Storage { data: CVec::new() }
+        U32Storage { data: CVec::new() }
     }
 
     #[inline]
@@ -22,7 +22,7 @@ impl Storage {
     }
 }
 
-impl IndexStorage<u32> for Storage {
+impl IndexStorage<u32> for U32Storage {
     #[inline]
     fn get_item(&self, id: u32) -> Option<u32> {
         self.data.get(id as usize)

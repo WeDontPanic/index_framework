@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 /// Generic bin search over any value
-pub fn generic_binary_search<I, F, T>(
+pub(crate) fn generic_binary_search<I, F, T>(
     over: I,
     mut size: usize,
     mut f: F,

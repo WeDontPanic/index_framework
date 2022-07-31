@@ -3,15 +3,19 @@ use std::marker::PhantomData;
 
 /// Dictionary containing all terms of the index
 pub trait IndexDictionary<I: DictItem> {
+    /// Returs the ID of the given term
     fn get_id(&self, term: &I) -> Option<u32>;
+
+    /// Returns a term with the given ID
     fn get_term(&self, id: u32) -> Option<I>;
 
+    /// Returns `true` if the Dictionary has the given term
     #[inline]
     fn has_term(&self, term: &I) -> bool {
         self.get_id(term).is_some()
     }
 
-    /// Returs the amount of items in the dictionary
+    /// Returs the amount of terms in the dictionary
     fn len(&self) -> usize;
 
     /// Returns an iterator over all terms in the dictionary

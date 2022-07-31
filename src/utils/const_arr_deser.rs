@@ -11,7 +11,7 @@ pub fn serialize<S: Serializer, T: Serialize + Clone, const N: usize>(
     ser: S,
 ) -> Result<S::Ok, S::Error> {
     let mut s = ser.serialize_seq(Some(data.len() * N))?;
-    for d in data.iter().map(|i| i.iter()).flatten() {
+    for d in data.iter().flat_map(|i| i.iter()) {
         s.serialize_element(d)?;
     }
     s.end()
@@ -34,7 +34,9 @@ where
     where
         A: SeqAccess<'de>,
     {
-        let mut out = vec![];
+        let len = seq.size_hint().unwrap_or(10);
+        let mut out = Vec::with_capacity(len);
+
         let next = seq.next_element::<Vec<T>>()?;
 
         if let Some(list) = next {
@@ -51,6 +53,8 @@ where
         Ok(out)
     }
 }
+
+#[inline]
 pub fn deserialize<'de, D, T, const N: usize>(deserializer: D) -> Result<Vec<[T; N]>, D::Error>
 where
     D: Deserializer<'de>,

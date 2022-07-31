@@ -1,7 +1,10 @@
 use index_framework::{
     backend::memory::{
-        builder::MemIndexBuilder, compr_postings, dict::Dictionary, generic::GenMemBackend,
-        postings, storage::Storage,
+        builder::MemIndexBuilder,
+        dict::default::Dictionary,
+        postings::{compressed, default},
+        storage::default::Storage,
+        MemBackend,
     },
     traits::{
         backend::Backend,
@@ -52,7 +55,7 @@ where
     S: IndexStorage<u32>,
     P: IndexPostings<List = Vec<u32>>,
 {
-    index: Index<GenMemBackend<String, u32, D, S, P>, String, u32>,
+    index: Index<MemBackend<String, u32, D, S, P>, String, u32>,
 
     // Maps Term to its ID
     term_id_map: HashMap<String, u32>,
@@ -70,7 +73,7 @@ where
     BP: BuildPostings<Output = P, PostingList = Vec<u32>>,
     BS: BuildIndexStorage<u32, Output = S>,
 {
-    let mut builder: MemIndexBuilder<GenMemBackend<String, u32, D, S, P>, String, u32, BD, BS, BP> =
+    let mut builder: MemIndexBuilder<MemBackend<String, u32, D, S, P>, String, u32, BD, BS, BP> =
         MemIndexBuilder::new(1);
 
     // Maps Term to its ID
@@ -128,6 +131,6 @@ where
 
 #[test]
 fn test_builder() {
-    new_testset::<_, _, _, Dictionary<_>, compr_postings::Postings, Storage<_>>().test();
-    new_testset::<_, _, _, Dictionary<_>, postings::Postings, Storage<_>>().test();
+    new_testset::<_, _, _, Dictionary<_>, compressed::Postings, Storage<_>>().test();
+    new_testset::<_, _, _, Dictionary<_>, default::Postings, Storage<_>>().test();
 }

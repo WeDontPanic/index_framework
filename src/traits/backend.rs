@@ -5,7 +5,6 @@ use super::{
 use std::{
     fs::File,
     io::{BufReader, Cursor, Read, Write},
-    marker::PhantomData,
     path::Path,
 };
 
@@ -17,22 +16,14 @@ where
     S: DeSer,
 {
     type Dict: IndexDictionary<T>;
-    type Postings: IndexPostings;
     type Storage: IndexStorage<S>;
+    type Postings: IndexPostings;
 
-    fn decode_from<R: Read>(reader: R) -> Option<Self>
-    where
-        Self: Sized;
-
-    fn encode(&self) -> Vec<u8>;
-
-    /// Encodes the index into a writer
-    fn encode_to<W: Write>(&self, mut out: W) -> Result<(), std::io::Error> {
-        let encoded = self.encode();
-        Ok(out.write_all(&encoded)?)
-    }
-
+    /// Returs the indexes dictionary
     fn dict(&self) -> &Self::Dict;
+
+    /// Returns the indexes storage
+    fn storage(&self) -> &Self::Storage;
 
     /// Returns a postings list for the given ID
     fn postings(&self, id: u32) -> Option<&Self::Postings>;
@@ -40,13 +31,23 @@ where
     /// Returns the amount of posting maps
     fn posting_count(&self) -> usize;
 
-    fn storage(&self) -> &Self::Storage;
-
     /// Returns `true` if the index doesn't contain index data
     #[inline]
     fn is_empty(&self) -> bool {
         self.dict().is_empty() || self.posting_count() == 0 || self.storage().is_empty()
     }
+
+    fn encode(&self) -> Vec<u8>;
+
+    /// Encodes the index into a writer
+    fn encode_to<W: Write>(&self, mut out: W) -> Result<(), std::io::Error> {
+        let encoded = self.encode();
+        out.write_all(&encoded)
+    }
+
+    fn decode_from<R: Read>(reader: R) -> Option<Self>
+    where
+        Self: Sized;
 
     /// Decodes an idnex from raw bytes
     fn decode(data: &[u8]) -> Option<Self>
@@ -65,15 +66,6 @@ where
         let r = BufReader::new(File::open(file).ok()?);
         Self::decode_from(r)
     }
-
-    /// Returns an iterator over all postings lists
-    #[inline]
-    fn postings_iter(&self) -> PostingsIterator<Self, T, S>
-    where
-        Self: Sized,
-    {
-        PostingsIterator::new(self)
-    }
 }
 
 pub trait NewBackend<T, S>: Backend<T, S>
@@ -82,45 +74,4 @@ where
     S: DeSer,
 {
     fn new(dict: Self::Dict, postings: Vec<Self::Postings>, storage: Self::Storage) -> Self;
-}
-
-pub struct PostingsIterator<'a, B, T, S> {
-    backend: &'a B,
-    pos: u32,
-    p1: PhantomData<T>,
-    p2: PhantomData<S>,
-}
-
-impl<'a, B, T, S> PostingsIterator<'a, B, T, S>
-where
-    B: Backend<T, S>,
-    T: DictItem,
-    S: DeSer,
-{
-    #[inline]
-    fn new(backend: &'a B) -> Self {
-        Self {
-            backend,
-            pos: 0,
-            p1: PhantomData,
-            p2: PhantomData,
-        }
-    }
-}
-
-impl<'a, B, T, S> Iterator for PostingsIterator<'a, B, T, S>
-where
-    B: Backend<T, S>,
-    <B as Backend<T, S>>::Postings: 'a,
-    T: DictItem,
-    S: DeSer,
-{
-    type Item = &'a B::Postings;
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        let p = self.backend.postings(self.pos)?;
-        self.pos += 1;
-        Some(p)
-    }
 }

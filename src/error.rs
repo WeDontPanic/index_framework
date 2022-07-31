@@ -2,10 +2,7 @@ use std::{fmt::Display, string::FromUtf8Error};
 
 #[derive(Debug)]
 pub enum Error {
-    Io(std::io::Error),
     UTF8Error,
-    Decode,
-    InvalidIndex,
     Bincode(bincode::Error),
 }
 

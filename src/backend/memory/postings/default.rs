@@ -2,12 +2,13 @@ use crate::traits::postings::{BuildPostings, IndexPostings};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Postings {
     index: HashMap<u32, Vec<u32>>,
 }
 
 impl Postings {
+    #[inline]
     pub fn new() -> Self {
         Self {
             index: HashMap::new(),

@@ -18,9 +18,9 @@ pub struct MemIndexBuilder<B, T, S, DD, SS, PP> {
     pub storage: SS,
     pub postings_list: Vec<HashMap<u32, Vec<u32>>>,
     pub term_map: HashMap<T, u32>,
-    p: PhantomData<S>,
+    s: PhantomData<S>,
     b: PhantomData<B>,
-    pp: PhantomData<PP>,
+    p: PhantomData<PP>,
 }
 
 impl<B, T, S, DD, SS, PP> MemIndexBuilder<B, T, S, DD, SS, PP>
@@ -47,35 +47,46 @@ where
             storage,
             postings_list,
             term_map,
-            p: PhantomData,
+            s: PhantomData,
             b: PhantomData,
-            pp: PhantomData,
+            p: PhantomData,
         }
     }
 
+    /// Returns the dictionary value
     #[inline]
     pub fn dict(&self) -> &DD {
         &self.dict
     }
 
+    /// Returns the storage value
     #[inline]
     pub fn storage(&self) -> &SS {
         &self.storage
     }
 
+    /// Get a postings item by its ID
     #[inline]
     pub fn postings(&self, id: usize) -> Option<&HashMap<u32, Vec<u32>>> {
         self.postings_list.get(id)
     }
 
+    /// Returns a map of terms to its IDs
     #[inline]
     pub fn term_map(&self) -> &HashMap<T, u32> {
         &self.term_map
     }
 
+    /// Get a mutable postings item by its ID
     #[inline]
     pub fn postings_mut(&mut self, pos: usize) -> Option<&mut HashMap<u32, Vec<u32>>> {
         self.postings_list.get_mut(pos)
+    }
+
+    /// Returns the amount of posting-lists
+    #[inline]
+    pub fn postings_count(&self) -> usize {
+        self.postings_list.len()
     }
 }
 

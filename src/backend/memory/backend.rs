@@ -1,5 +1,4 @@
-use super::builder::MemIndexBuilder;
-use super::{compr_postings::Postings, dict::Dictionary, storage::Storage};
+use super::{dict::default::Dictionary, postings::compressed::Postings, storage::default::Storage};
 use crate::traits::{
     backend::{Backend, NewBackend},
     deser::DeSer,
@@ -8,24 +7,20 @@ use crate::traits::{
 use serde::{Deserialize, Serialize};
 use std::io::Read;
 
-/// Shortcut for MemoryBackend index builder
-pub type MemoryBackendBuilder<T, S> =
-    MemIndexBuilder<MemoryBackend<T, S>, T, S, Dictionary<T>, Storage<S>, Postings>;
-
 /// Completely in memory index backend
 #[derive(Serialize, Deserialize)]
-pub struct MemoryBackend<D, S> {
-    dict: Dictionary<D>,
+pub struct MemoryBackend<T, S> {
+    dict: Dictionary<T>,
     postings_list: Vec<Postings>,
     storage: Storage<S>,
 }
 
-impl<D, S> Backend<D, S> for MemoryBackend<D, S>
+impl<T, S> Backend<T, S> for MemoryBackend<T, S>
 where
-    D: DictItem,
+    T: DictItem,
     S: DeSer,
 {
-    type Dict = Dictionary<D>;
+    type Dict = Dictionary<T>;
     type Postings = Postings;
     type Storage = Storage<S>;
 
@@ -56,14 +51,15 @@ where
         &self.storage
     }
 
+    #[inline]
     fn posting_count(&self) -> usize {
         self.postings_list.len()
     }
 }
 
-impl<D, S> NewBackend<D, S> for MemoryBackend<D, S>
+impl<T, S> NewBackend<T, S> for MemoryBackend<T, S>
 where
-    D: DictItem,
+    T: DictItem,
     S: DeSer,
 {
     #[inline]

@@ -1,4 +1,3 @@
-use super::file::MemFile;
 use crate::{
     traits::{
         dict_item::DictItem,
@@ -8,6 +7,7 @@ use crate::{
 };
 use compressed_vec::{buffered::BufCVecRef, CVec};
 use serde::{Deserialize, Serialize};
+use st_file::{traits::IndexedAccess, MemFile};
 use std::marker::PhantomData;
 
 /// In memory dictionary
@@ -63,7 +63,7 @@ impl<T: DictItem> IndexDictionary<T> for Dictionary<T> {
         let res = generic_binary_search((), self.len(), |_, i| {
             let pos = *buf_reader.get_buffered(i).unwrap() as u32;
             let bterm = self.get_term(pos).unwrap();
-            (bterm.cmp(&term), bterm)
+            (bterm.cmp(term), bterm)
         })
         .ok()?
         .0 as u32;

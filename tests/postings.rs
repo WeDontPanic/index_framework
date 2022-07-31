@@ -1,13 +1,13 @@
 use index_framework::{
-    backend::memory::{compr_postings, postings},
+    backend::memory::postings::{compressed, default},
     traits::postings::{BuildPostings, IndexPostings},
 };
 use std::collections::HashMap;
 
 #[test]
 fn test_postings() {
-    postings_test::<postings::Postings>();
-    postings_test::<compr_postings::Postings>();
+    postings_test::<default::Postings>();
+    postings_test::<compressed::Postings>();
 }
 
 fn postings_test<P>()

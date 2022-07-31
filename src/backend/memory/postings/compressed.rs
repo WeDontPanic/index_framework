@@ -4,7 +4,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Postings {
     /// Maps dimension indexes to positions in `data`
     index: CVec,
@@ -13,6 +13,7 @@ pub struct Postings {
 }
 
 impl Postings {
+    #[inline]
     pub fn new() -> Self {
         Self {
             index: CVec::new(),
@@ -27,14 +28,14 @@ impl Postings {
 
         let mut prev_term_id: Option<u32> = None;
 
-        for (dim, item_ids) in map.into_iter().sorted_by(|a, b| a.0.cmp(&b.0)) {
+        for (term_id, item_ids) in map.into_iter().sorted_by(|a, b| a.0.cmp(&b.0)) {
             if prev_term_id.is_none() {
-                prev_term_id = Some(dim);
+                prev_term_id = Some(term_id);
             }
 
             // Fill non mapped dimensions with 0s to make the CVS replace a HashMap
             let ld = prev_term_id.as_ref().unwrap();
-            for _ in ld + 1..dim {
+            for _ in ld + 1..term_id {
                 index.push(data.len() as u32);
                 data.push(0);
             }
@@ -46,7 +47,7 @@ impl Postings {
             data.push(item_ids.len() as u32);
             data.extend(item_ids);
 
-            prev_term_id = Some(dim);
+            prev_term_id = Some(term_id);
         }
 
         Self { index, data }

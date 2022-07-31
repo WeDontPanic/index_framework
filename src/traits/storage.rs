@@ -2,7 +2,10 @@ use std::marker::PhantomData;
 
 /// Storage containing all 'result' items in the index
 pub trait IndexStorage<I> {
+    /// Returns an the item with the id from the storage
     fn get_item(&self, id: u32) -> Option<I>;
+
+    /// Returns `true` if the storage has an item with the given ID
     fn has_item(&self, id: u32) -> bool;
 
     /// Returns the amount of items in the storage

@@ -5,8 +5,8 @@ pub mod utils;
 
 use crate::traits::{backend::Backend, build::IndexBuilder};
 use backend::memory::{
-    backend::MemoryBackend, builder::MemIndexBuilder, compr_postings::Postings, dict::Dictionary,
-    storage::Storage,
+    backend::MemoryBackend, builder::MemIndexBuilder, dict::default::Dictionary,
+    postings::compressed::Postings, storage::default::Storage,
 };
 use std::{io::Write, marker::PhantomData, ops::Deref, path::Path};
 use traits::{deser::DeSer, dict_item::DictItem};
@@ -48,6 +48,7 @@ impl<B, T, S> Deref for Index<B, T, S> {
 }
 
 fn main() {
+    /*
     let mut builder: MemIndexBuilder<
         MemoryBackend<_, _>,
         _,
@@ -106,4 +107,5 @@ fn main() {
     println!("Storage size: {storage_size}");
     println!("Postings size: {posting_size}");
     println!("Dict size: {dict_size}");
+    */
 }

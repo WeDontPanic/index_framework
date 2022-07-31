@@ -1,8 +1,8 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use index_framework::{
     backend::memory::{
-        backend::MemoryBackend, builder::MemIndexBuilder, compr_postings::Postings,
-        dict::Dictionary, storage::Storage,
+        backend::MemoryBackend, builder::MemIndexBuilder, dict::default::Dictionary,
+        postings::compressed::Postings, storage::default::Storage,
     },
     traits::{backend::Backend, build::IndexBuilder, dictionary::IndexDictionary},
     Index,

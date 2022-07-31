@@ -10,9 +10,10 @@ authors = ["Jojii <Jojii ät gmx.net>"]
 bincode = "1.3.3"
 serde = "1.0.140"
 itertools = "0.10.3"
-#compressed_vec = { git = "https://github.com/JojiiOfficial/CompressedVec" }
+st_file = { path = "../st_file" }
 compressed_vec = { path = "../CompressedVec" }
-resources = { path = "/home/jojii/programming/rust/jotoba/lib/resources/" }
+#compressed_vec = { git = "https://github.com/JojiiOfficial/CompressedVec" }
+#resources = { path = "/home/jojii/programming/rust/jotoba/lib/resources/" }
 
 [dev-dependencies]
 criterion = "0.3.6"

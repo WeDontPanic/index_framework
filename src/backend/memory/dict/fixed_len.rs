@@ -6,7 +6,8 @@ use crate::{
 use compressed_vec::{buffered::BufCVecRef, CVec};
 use serde::{Deserialize, Serialize};
 
-/// String Dictionary with constant term width
+/// String dictionary with a constant term width.
+/// Optimal for saving Ngrams efficiently
 #[derive(Serialize, Deserialize)]
 pub struct FixDict<const N: usize> {
     #[serde(with = "const_arr_deser")]
@@ -52,7 +53,7 @@ impl<const N: usize> FixDict<N> {
         vec.sort_by(|a, b| {
             let a = self.get_term_raw(*a).unwrap();
             let b = self.get_term_raw(*b).unwrap();
-            a.cmp(&b)
+            a.cmp(b)
         });
         self.sort_index = CVec::from(vec);
     }

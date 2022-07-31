@@ -5,7 +5,11 @@ use std::collections::HashMap;
 pub trait IndexPostings {
     type List;
 
+    /// Returns the postings-list with a given ID
     fn get_posting(&self, id: u32) -> Self::List;
+
+    /// Returns `true` if the posting storage has a
+    /// posting list with the given ID
     fn has_id(&self, id: u32) -> bool;
     fn posting_size(&self, id: u32) -> usize;
 
@@ -37,6 +41,7 @@ pub trait BuildPostings {
     fn build(self) -> Self::Output;
 }
 
+/// An iterator over all posting lists in an index
 pub struct PostingIter<'a, P> {
     postings: &'a P,
     pos: usize,

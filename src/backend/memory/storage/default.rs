@@ -1,15 +1,15 @@
-use super::file::MemFile;
 use crate::traits::{
     deser::DeSer,
     storage::{BuildIndexStorage, IndexStorage},
 };
 use serde::{Deserialize, Serialize};
+use st_file::{traits::IndexedAccess, MemFile};
 use std::marker::PhantomData;
 
 /// An in-memory storage for index items
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Storage<S> {
-    pub(crate) data: MemFile,
+    data: MemFile,
     p: PhantomData<S>,
 }
 
