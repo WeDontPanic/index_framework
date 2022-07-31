@@ -111,9 +111,8 @@ where
     #[inline]
     fn map(&mut self, postings_id: u32, item: u32, terms: &[u32]) {
         let postings = self
-            .postings_list
-            .get_mut(postings_id as usize)
-            .expect(&format!("Postings {postings_id} out of index"));
+            .postings_mut(postings_id as usize)
+            .expect("Invalid postings index");
         for term in terms {
             postings.entry(*term).or_default().push(item);
         }

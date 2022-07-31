@@ -32,8 +32,11 @@ impl Postings {
                 prev_term_id = Some(dim);
             }
 
-            if prev_term_id.as_ref().unwrap() + 1 < dim {
-                panic!("Invalid index");
+            // Fill non mapped dimensions with 0s to make the CVS replace a HashMap
+            let ld = prev_term_id.as_ref().unwrap();
+            for _ in ld + 1..dim {
+                index.push(data.len() as u32);
+                data.push(0);
             }
 
             // Push index indice
@@ -66,7 +69,7 @@ impl Postings {
         let mut out = Vec::with_capacity(arr_len);
 
         // Take all elements of array. `arr_len` contains the count of all items in the array
-        for pos in (arr_start + 1)..(arr_start + arr_len) {
+        for pos in (arr_start + 1)..(arr_start + arr_len + 1) {
             out.push(*buf_vec.get_buffered(pos as usize)?);
         }
 

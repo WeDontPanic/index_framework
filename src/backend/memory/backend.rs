@@ -1,3 +1,4 @@
+use super::builder::MemIndexBuilder;
 use super::{compr_postings::Postings, dict::Dictionary, storage::Storage};
 use crate::traits::{
     backend::{Backend, NewBackend},
@@ -6,6 +7,10 @@ use crate::traits::{
 };
 use serde::{Deserialize, Serialize};
 use std::io::Read;
+
+/// Shortcut for MemoryBackend index builder
+pub type MemoryBackendBuilder<T, S> =
+    MemIndexBuilder<MemoryBackend<T, S>, T, S, Dictionary<T>, Storage<S>, Postings>;
 
 /// Completely in memory index backend
 #[derive(Serialize, Deserialize)]

@@ -50,22 +50,32 @@ impl<const N: usize> FixDict<N> {
     pub(crate) fn reorder(&mut self) {
         let mut vec = std::mem::take(&mut self.sort_index).as_vec();
         vec.sort_by(|a, b| {
-            let a = self.get_term(*a).unwrap();
-            let b = self.get_term(*b).unwrap();
+            let a = self.get_term_raw(*a).unwrap();
+            let b = self.get_term_raw(*b).unwrap();
             a.cmp(&b)
         });
         self.sort_index = CVec::from(vec);
+    }
+
+    #[inline]
+    fn get_term_raw(&self, id: u32) -> Option<&[char; N]> {
+        self.data.get(id as usize)
     }
 }
 
 impl<const N: usize> IndexDictionary<String> for FixDict<N> {
     #[inline]
     fn get_id(&self, term: &String) -> Option<u32> {
+        let t_chars = Self::char_array(term);
+
         let mut buf_read = BufCVecRef::new(&self.sort_index);
+
         let res = generic_binary_search((), self.len(), |_, i| {
             let pos = *buf_read.get_buffered(i).unwrap() as u32;
-            let bterm = self.get_term(pos).unwrap();
-            (bterm.cmp(&term), bterm)
+
+            let bterm = self.get_term_raw(pos).unwrap();
+
+            (bterm.cmp(&t_chars), bterm)
         })
         .ok()?
         .0 as u32;
@@ -74,7 +84,7 @@ impl<const N: usize> IndexDictionary<String> for FixDict<N> {
 
     #[inline]
     fn get_term(&self, id: u32) -> Option<String> {
-        let data = self.data.get(id as usize)?;
+        let data = self.get_term_raw(id)?;
         Some(data.iter().collect())
     }
 
