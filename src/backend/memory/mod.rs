@@ -2,6 +2,7 @@ pub mod backend;
 pub mod build;
 pub mod dict;
 pub mod postings;
+pub mod presets;
 pub mod storage;
 
 use crate::traits::{
@@ -15,7 +16,7 @@ use crate::traits::{
 use serde::{Deserialize, Serialize};
 use std::{io::Read, marker::PhantomData};
 
-/// Completely in memory index backend
+/// Generic in-memory index backend to build any kinds of indexes
 #[derive(Serialize, Deserialize)]
 pub struct MemBackend<T, S, Dic, Stor, Post> {
     dict: Dic,

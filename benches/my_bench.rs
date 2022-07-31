@@ -22,7 +22,7 @@ fn get_simple_index() -> Index<MemoryBackend<String, u32>, String, u32> {
     for word in res.words().iter() {
         let reading = word.get_reading().reading.clone();
         let e = builder.insert_term(reading).unwrap_or_else(|v| v);
-        builder.index_item(0, word.sequence, &[e]);
+        builder.index_new(0, word.sequence, &[e]);
     }
     builder.build()
 }

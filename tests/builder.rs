@@ -91,7 +91,7 @@ where
                 id
             })
             .collect();
-        let item_id = builder.index_item(0, pos as u32, &term_ids);
+        let item_id = builder.index_new(0, pos as u32, &term_ids);
         item_id_map.insert(item_id, pos as u32);
     }
 

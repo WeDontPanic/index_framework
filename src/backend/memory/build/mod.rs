@@ -127,8 +127,9 @@ where
         let postings_list = std::mem::take(&mut self.postings_list);
         let sort = self.has_option(&BuildOption::SortedPostings);
 
-        let mut out = Vec::with_capacity(postings_list.len());
-        for (postings_id, postings) in postings_list.into_iter().enumerate() {
+        let mut postings_list_out = Vec::with_capacity(postings_list.len());
+
+        for (post_id, postings) in postings_list.into_iter().enumerate() {
             let mut tmp_map = HashMap::with_capacity(postings.len());
 
             for (t_id, mut ids) in postings {
@@ -138,15 +139,15 @@ where
 
                 // Apply mod
                 self.postings_mod
-                    .filter(postings_id as u32, t_id, &mut ids, &self);
+                    .apply(post_id as u32, t_id, &mut ids, &self);
 
                 tmp_map.insert(t_id, ids);
             }
 
-            out.push(PP::from_map(tmp_map).build());
+            postings_list_out.push(PP::from_map(tmp_map).build());
         }
 
-        out
+        postings_list_out
     }
 }
 

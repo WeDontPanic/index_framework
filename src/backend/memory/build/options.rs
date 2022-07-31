@@ -26,7 +26,7 @@ impl<B, T, S, DD, SS, PP> PostingsMod<B, T, S, DD, SS, PP> {
     }
 
     #[inline]
-    pub(crate) fn filter(
+    pub(crate) fn apply(
         &self,
         postings_id: u32,
         t_id: u32,
