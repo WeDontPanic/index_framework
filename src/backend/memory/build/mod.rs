@@ -121,6 +121,11 @@ where
         self.options.contains(option)
     }
 
+    #[inline]
+    pub fn dict_mut(&mut self) -> &mut DD {
+        &mut self.dict
+    }
+
     fn build_postings(&mut self) -> Vec<<B as Backend<T, S>>::Postings> {
         let postings_list = std::mem::take(&mut self.postings_list);
         let sort = self.has_option(&BuildOption::SortedPostings);

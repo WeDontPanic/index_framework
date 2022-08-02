@@ -43,6 +43,9 @@ pub trait BuildIndexDictionary<I: DictItem> {
     /// Inserts a new item into the dict and returns its ID
     fn insert(&mut self, i: I) -> u32;
 
+    /// Returns a dict item with the given ID
+    fn get(&self, id: u32) -> Option<I>;
+
     /// Called after adding all terms
     fn finish(&mut self) {}
 

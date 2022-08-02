@@ -1,4 +1,5 @@
 use crate::traits::{
+    build::ItemMod,
     deser::DeSer,
     storage::{BuildIndexStorage, IndexStorage},
 };
@@ -62,5 +63,16 @@ impl<S: DeSer> BuildIndexStorage<S> for Storage<S> {
     #[inline]
     fn build(self) -> Self::Output {
         self
+    }
+}
+
+impl<S> ItemMod<S> for Storage<S>
+where
+    S: DeSer,
+{
+    #[inline]
+    fn set_item(&mut self, id: u32, new: S) {
+        let encoded = new.encode_vec();
+        self.data.replace(id as usize, &encoded);
     }
 }

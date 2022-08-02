@@ -1,5 +1,6 @@
 use crate::{
     traits::{
+        build::ItemMod,
         dict_item::DictItem,
         dictionary::{BuildIndexDictionary, IndexDictionary},
     },
@@ -95,6 +96,11 @@ impl<T: DictItem> BuildIndexDictionary<T> for Dictionary<T> {
     }
 
     #[inline]
+    fn get(&self, id: u32) -> Option<T> {
+        self.get_term(id)
+    }
+
+    #[inline]
     fn finish(&mut self) {
         self.reorder();
     }
@@ -125,6 +131,17 @@ impl<'a, T: DictItem> Drop for MultInsert<'a, T> {
     #[inline]
     fn drop(&mut self) {
         self.dict.reorder();
+    }
+}
+
+impl<T> ItemMod<T> for Dictionary<T>
+where
+    T: DictItem,
+{
+    #[inline]
+    fn set_item(&mut self, id: u32, new: T) {
+        let encoded = new.encode_vec();
+        self.data.replace(id as usize, &encoded);
     }
 }
 

@@ -1,5 +1,8 @@
 use crate::{
-    traits::dictionary::{BuildIndexDictionary, IndexDictionary},
+    traits::{
+        build::ItemMod,
+        dictionary::{BuildIndexDictionary, IndexDictionary},
+    },
     utils::bin_search::generic_binary_search,
     utils::const_arr_deser,
 };
@@ -109,6 +112,11 @@ impl<const N: usize> BuildIndexDictionary<String> for FixDict<N> {
     }
 
     #[inline]
+    fn get(&self, id: u32) -> Option<String> {
+        self.get_term(id)
+    }
+
+    #[inline]
     fn finish(&mut self) {
         self.reorder();
     }
@@ -116,6 +124,16 @@ impl<const N: usize> BuildIndexDictionary<String> for FixDict<N> {
     #[inline]
     fn build(self) -> Self::Output {
         self
+    }
+}
+
+impl<const N: usize> ItemMod<String> for FixDict<N> {
+    #[inline]
+    fn set_item(&mut self, id: u32, new: String) {
+        let chars = Self::char_array(&new);
+        if let Some(item) = self.data.get_mut(id as usize) {
+            *item = chars;
+        }
     }
 }
 

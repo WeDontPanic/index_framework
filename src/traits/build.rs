@@ -53,3 +53,7 @@ where
             .collect()
     }
 }
+
+pub trait ItemMod<T> {
+    fn set_item(&mut self, id: u32, new: T);
+}

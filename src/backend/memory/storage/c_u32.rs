@@ -1,4 +1,4 @@
-use crate::traits::storage::IndexStorage;
+use crate::traits::{build::ItemMod, storage::IndexStorage};
 use compressed_vec::CVec;
 use serde::{Deserialize, Serialize};
 
@@ -36,5 +36,16 @@ impl IndexStorage<u32> for U32Storage {
     #[inline]
     fn len(&self) -> usize {
         self.data.len()
+    }
+}
+
+impl ItemMod<u32> for U32Storage {
+    fn set_item(&mut self, id: u32, new: u32) {
+        // TODO: make this properly
+        let mut vec = self.data.as_vec();
+        if let Some(item) = vec.get_mut(id as usize) {
+            *item = new;
+        }
+        self.data = CVec::from(vec)
     }
 }
