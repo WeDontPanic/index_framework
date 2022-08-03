@@ -94,6 +94,11 @@ impl<const N: usize> IndexDictionary<String> for FixDict<N> {
     }
 
     #[inline]
+    fn has_term_id(&self, id: u32) -> bool {
+        (self.data.len() as u32) > id
+    }
+
+    #[inline]
     fn len(&self) -> usize {
         self.data.len()
     }

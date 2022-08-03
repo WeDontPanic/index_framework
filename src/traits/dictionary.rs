@@ -15,6 +15,8 @@ pub trait IndexDictionary<I: DictItem> {
         self.get_id(term).is_some()
     }
 
+    fn has_term_id(&self, id: u32) -> bool;
+
     /// Returs the amount of terms in the dictionary
     fn len(&self) -> usize;
 

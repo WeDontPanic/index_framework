@@ -23,7 +23,7 @@ const DOCS: &[&str] = &[
     "日本語 で 書いた テキスト です",
     "this is some text to tindex",
     "some other text",
-    "lol",
+    "lol text text",
     "impl<B, T, S, DD, SS, PP> MemIndexBuilder<B, T, S, DD, SS, PP>
 where
     B: Backend<T, S>,
@@ -110,6 +110,11 @@ where
     P: IndexPostings<List = Vec<u32>> + DeSer,
 {
     fn test(&self) {
+        self.test_index();
+        self.test_retrieve_iter();
+    }
+
+    fn test_index(&self) {
         let index = &self.index;
 
         for (ex_term, ex_id) in self.term_id_map.iter() {
@@ -126,6 +131,11 @@ where
             let ex_doc = &DOCS[*doc_pos as usize];
             assert_eq!(doc, ex_doc);
         }
+    }
+
+    fn test_retrieve_iter(&self) {
+        let res = self.index.retrieve().by_terms(["text"]).unique().get_all();
+        assert_eq!(res, vec![3, 2, 1]);
     }
 }
 

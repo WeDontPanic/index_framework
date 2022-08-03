@@ -1,12 +1,14 @@
 pub mod backend;
 pub mod error;
+pub mod retrieve;
 pub mod traits;
 pub mod utils;
 
 use crate::traits::backend::Backend;
+use retrieve::Retrieve;
 use serde::{Deserialize, Serialize};
 use std::{marker::PhantomData, ops::Deref, path::Path};
-use traits::{deser::DeSer, dict_item::DictItem};
+use traits::{deser::DeSer, dict_item::DictItem, postings::IndexPostings};
 
 #[derive(Serialize, Deserialize)]
 pub struct Index<B, T, S> {
@@ -33,6 +35,19 @@ where
     #[inline]
     pub fn open<P: AsRef<Path>>(&self, path: P) -> Option<Self> {
         Some(Self::new(B::open(path)?))
+    }
+}
+
+impl<B, T, S> Index<B, T, S>
+where
+    B: Backend<T, S>,
+    T: DictItem,
+    S: DeSer,
+    <<B as Backend<T, S>>::Postings as IndexPostings>::List: IntoIterator<Item = u32>,
+{
+    #[inline]
+    pub fn retrieve(&self) -> Retrieve<'_, B, T, S> {
+        Retrieve::new(self)
     }
 }
 
