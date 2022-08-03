@@ -142,7 +142,7 @@ where
 
                 // Apply mod
                 self.postings_mod
-                    .apply(post_id as u32, t_id, &mut ids, &self);
+                    .apply(post_id as u32, t_id, &mut ids, self);
 
                 tmp_map.insert(t_id, ids);
             }

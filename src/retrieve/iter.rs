@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use super::Retrieve;
 use crate::{
     traits::{
@@ -8,6 +6,7 @@ use crate::{
     },
     Index,
 };
+use std::collections::HashSet;
 
 /// Iterator over results of a retrieve query
 pub struct RetrieveIter<'a, B, T, S> {
@@ -16,7 +15,7 @@ pub struct RetrieveIter<'a, B, T, S> {
     // Buffer for going over storage ids
     storage_buf: Vec<u32>,
 
-    seen: HashSet<u32>,
+    seen: Option<HashSet<u32>>,
 }
 
 impl<'a, B, T, S> RetrieveIter<'a, B, T, S>
@@ -28,18 +27,20 @@ where
 {
     #[inline]
     pub(crate) fn new(retrieve: Retrieve<'a, B, T, S>) -> Self {
+        let seen = retrieve.unique.then(HashSet::new);
         Self {
             retrieve,
             storage_buf: Vec::with_capacity(10),
-            seen: HashSet::new(),
+            seen,
         }
     }
 
     #[inline]
     fn index(&self) -> &Index<B, T, S> {
-        &self.retrieve.index
+        self.retrieve.index
     }
 
+    #[inline]
     fn get_or_fill(&mut self) -> Option<&mut Vec<u32>> {
         if self.storage_buf.is_empty() {
             self.fill_buff()?;
@@ -47,7 +48,7 @@ where
 
         assert!(!self.storage_buf.is_empty());
 
-        return Some(&mut self.storage_buf);
+        Some(&mut self.storage_buf)
     }
 
     /// Fills the iterators buff with new storage IDs from the index.
@@ -60,18 +61,19 @@ where
             let t_id = self.retrieve.terms.pop()?;
 
             for post_id in &self.retrieve.postings {
-                if let Some(postings) = self.index().postings(*post_id) {
-                    let iter = postings.get_posting(t_id).into_iter().filter(|i| {
-                        if !self.retrieve.unique {
-                            return true;
-                        }
-                        if self.seen.contains(i) {
-                            return false;
-                        }
-                        self.seen.insert(*i)
-                    });
-                    self.storage_buf.extend(iter);
-                }
+                let postings = match self.index().postings(*post_id) {
+                    Some(p) => p,
+                    None => continue,
+                };
+                let iter =
+                    postings
+                        .get_posting(t_id)
+                        .into_iter()
+                        .filter(|i| match &mut self.seen {
+                            Some(v) => v.insert(*i),
+                            None => true,
+                        });
+                self.storage_buf.extend(iter);
             }
 
             // Done when added something to the buf
