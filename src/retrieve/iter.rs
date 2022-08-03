@@ -12,7 +12,10 @@ use crate::{
 /// Iterator over results of a retrieve query
 pub struct RetrieveIter<'a, B, T, S> {
     retrieve: Retrieve<'a, B, T, S>,
+
+    // Buffer for going over storage ids
     storage_buf: Vec<u32>,
+
     seen: HashSet<u32>,
 }
 
@@ -65,8 +68,7 @@ where
                         if self.seen.contains(i) {
                             return false;
                         }
-                        self.seen.insert(*i);
-                        true
+                        self.seen.insert(*i)
                     });
                     self.storage_buf.extend(iter);
                 }

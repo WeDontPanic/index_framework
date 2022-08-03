@@ -155,6 +155,15 @@ where
         self.terms.extend(iter);
         self
     }
+
+    #[inline]
+    pub fn in_postings<I>(mut self, p: I) -> Self
+    where
+        I: IntoIterator<Item = u32>,
+    {
+        self.postings = p.into_iter().collect();
+        self
+    }
 }
 
 impl<'a, B, T, S> IntoIterator for Retrieve<'a, B, T, S>
