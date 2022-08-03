@@ -69,8 +69,9 @@ impl<const N: usize> FixDict<N> {
 
 impl<const N: usize> IndexDictionary<String> for FixDict<N> {
     #[inline]
-    fn get_id(&self, term: &String) -> Option<u32> {
-        let t_chars = Self::char_array(term);
+    fn get_id<F: Into<String>>(&self, term: F) -> Option<u32> {
+        let term = term.into();
+        let t_chars = Self::char_array(&term);
 
         let mut buf_read = BufCVecRef::new(&self.sort_index);
 

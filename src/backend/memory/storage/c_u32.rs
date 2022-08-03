@@ -40,12 +40,8 @@ impl IndexStorage<u32> for U32Storage {
 }
 
 impl ItemMod<u32> for U32Storage {
+    #[inline]
     fn set_item(&mut self, id: u32, new: u32) {
-        // TODO: make this properly
-        let mut vec = self.data.as_vec();
-        if let Some(item) = vec.get_mut(id as usize) {
-            *item = new;
-        }
-        self.data = CVec::from(vec)
+        self.data.set(id as usize, new);
     }
 }

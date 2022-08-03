@@ -59,12 +59,14 @@ impl<T: DictItem> Dictionary<T> {
 
 impl<T: DictItem> IndexDictionary<T> for Dictionary<T> {
     #[inline]
-    fn get_id(&self, term: &T) -> Option<u32> {
+    fn get_id<F: Into<T>>(&self, term: F) -> Option<u32> {
+        let term = term.into();
+
         let mut buf_reader = BufCVecRef::new(&self.sort_index);
         let res = generic_binary_search((), self.len(), |_, i| {
             let pos = *buf_reader.get_buffered(i).unwrap() as u32;
             let bterm = self.get_term(pos).unwrap();
-            (bterm.cmp(term), bterm)
+            (bterm.cmp(&term), bterm)
         })
         .ok()?
         .0 as u32;
@@ -166,7 +168,7 @@ mod test {
         }
 
         for (d, id) in map {
-            assert_eq!(dict.get_id(&d.to_string()).unwrap(), id);
+            assert_eq!(dict.get_id(d).unwrap(), id);
         }
 
         for a in inpdict {

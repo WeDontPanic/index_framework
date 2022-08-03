@@ -34,6 +34,11 @@ pub trait BuildIndexStorage<T> {
 
     fn insert(&mut self, item: T) -> u32;
 
+    /// Returns a storage item with the given ID
+    fn get(&self, id: u32) -> Option<T>;
+
+    fn len(&self) -> usize;
+
     fn build(self) -> Self::Output;
 }
 

@@ -64,6 +64,16 @@ impl<S: DeSer> BuildIndexStorage<S> for Storage<S> {
     fn build(self) -> Self::Output {
         self
     }
+
+    #[inline]
+    fn get(&self, id: u32) -> Option<S> {
+        self.get_item(id)
+    }
+
+    #[inline]
+    fn len(&self) -> usize {
+        self.data.len()
+    }
 }
 
 impl<S> ItemMod<S> for Storage<S>

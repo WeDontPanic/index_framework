@@ -4,14 +4,14 @@ use std::marker::PhantomData;
 /// Dictionary containing all terms of the index
 pub trait IndexDictionary<I: DictItem> {
     /// Returs the ID of the given term
-    fn get_id(&self, term: &I) -> Option<u32>;
+    fn get_id<F: Into<I>>(&self, term: F) -> Option<u32>;
 
     /// Returns a term with the given ID
     fn get_term(&self, id: u32) -> Option<I>;
 
     /// Returns `true` if the Dictionary has the given term
     #[inline]
-    fn has_term(&self, term: &I) -> bool {
+    fn has_term<F: Into<I>>(&self, term: F) -> bool {
         self.get_id(term).is_some()
     }
 

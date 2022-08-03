@@ -11,6 +11,7 @@ pub trait IndexPostings {
     /// Returns `true` if the posting storage has a
     /// posting list with the given ID
     fn has_id(&self, id: u32) -> bool;
+
     fn posting_size(&self, id: u32) -> usize;
 
     /// Returs the amount of postings
