@@ -10,6 +10,7 @@ use crate::{
 use iter::RetrieveIter;
 
 /// Retrieves stuff from an index
+#[derive(Clone)]
 pub struct Retrieve<'a, B, T, S> {
     index: &'a Index<B, T, S>,
     limit: usize,
