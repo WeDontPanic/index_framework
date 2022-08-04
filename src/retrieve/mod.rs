@@ -25,7 +25,7 @@ where
     B: Backend<T, S>,
     T: DictItem,
     S: DeSer,
-    <<B as Backend<T, S>>::Postings as IndexPostings>::List: IntoIterator<Item = u32>,
+    <B as Backend<T, S>>::Postings: IndexPostings<List = Vec<u32>>,
 {
     #[inline]
     pub(crate) fn new(index: &'a Index<B, T, S>) -> Self {
