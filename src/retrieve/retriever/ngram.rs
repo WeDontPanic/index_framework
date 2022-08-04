@@ -77,14 +77,13 @@ where
         self.retrieve
             .terms
             .iter()
-            .map(|i| {
+            .flat_map(|i| {
                 self.retrieve.posting_ids.iter().filter_map(|pid| {
                     let postings = self.index().postings(*pid)?;
                     let postings: Vec<_> = postings.get_posting(*i).into_iter().collect();
                     (!postings.is_empty()).then(|| postings)
                 })
             })
-            .flatten()
             .collect()
     }
 
@@ -143,7 +142,7 @@ where
 
     #[inline]
     fn index(&self) -> &Index<B, T, S> {
-        &self.retrieve.index
+        self.retrieve.index
     }
 }
 
