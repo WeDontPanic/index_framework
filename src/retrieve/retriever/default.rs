@@ -25,6 +25,9 @@ where
     S: DeSer,
     <<B as Backend<T, S>>::Postings as IndexPostings>::List: IntoIterator<Item = u32>,
 {
+    type Output = S;
+
+    #[inline]
     fn new(retrieve: Retrieve<'a, B, T, S>) -> Self {
         let seen = retrieve.unique.then(HashSet::new);
         Self {
@@ -32,6 +35,11 @@ where
             storage_buf: Vec::with_capacity(10),
             seen,
         }
+    }
+
+    #[inline]
+    fn q_term_ids(&self) -> &[u32] {
+        &self.retrieve.terms
     }
 }
 
@@ -67,7 +75,7 @@ where
         loop {
             let t_id = self.retrieve.terms.pop()?;
 
-            for post_id in &self.retrieve.postings {
+            for post_id in &self.retrieve.posting_ids {
                 let postings = match self.index().postings(*post_id) {
                     Some(p) => p,
                     None => continue,
@@ -104,7 +112,7 @@ where
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        let next_id = self.get_or_fill()?.pop()?;
+        let next_id = self.get_or_fill()?.pop().expect("Hit bug");
         let item = self
             .index()
             .storage()

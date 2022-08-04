@@ -17,7 +17,7 @@ pub struct Retrieve<'a, B, T, S> {
     limit: usize,
     unique: bool,
     terms: Vec<u32>,
-    postings: Vec<u32>,
+    posting_ids: Vec<u32>,
 }
 
 impl<'a, B, T, S> Retrieve<'a, B, T, S>
@@ -34,12 +34,13 @@ where
             unique: false,
             limit: 0,
             terms: vec![],
-            postings: vec![0],
+            posting_ids: vec![0],
         }
     }
 
     /// Retrieve results
     #[inline]
+    #[must_use = "Output is lazy"]
     pub fn get<R>(self) -> R
     where
         R: Retriever<'a, B, T, S>,
@@ -49,7 +50,7 @@ where
 
     /// Collects all items and returns them in a new vec
     #[inline]
-    pub fn get_all<R>(self) -> Vec<S>
+    pub fn get_all<R>(self) -> Vec<R::Output>
     where
         R: Retriever<'a, B, T, S>,
     {
@@ -165,29 +166,20 @@ where
     }
 
     #[inline]
+    pub fn in_posting<I>(mut self, p: u32) -> Self
+    where
+        I: IntoIterator<Item = u32>,
+    {
+        self.posting_ids = vec![p];
+        self
+    }
+
+    #[inline]
     pub fn in_postings<I>(mut self, p: I) -> Self
     where
         I: IntoIterator<Item = u32>,
     {
-        self.postings = p.into_iter().collect();
+        self.posting_ids = p.into_iter().collect();
         self
     }
 }
-
-/*
-impl<'a, B, T, S> IntoIterator for Retrieve<'a, B, T, S>
-where
-    B: Backend<T, S>,
-    T: DictItem,
-    S: DeSer,
-    <<B as Backend<T, S>>::Postings as IndexPostings>::List: IntoIterator<Item = u32>,
-{
-    type Item = S;
-    type IntoIter = RetrieveIter<'a, B, T, S>;
-
-    #[inline]
-    fn into_iter(self) -> Self::IntoIter {
-        RetrieveIter::new(self)
-    }
-}
-*/

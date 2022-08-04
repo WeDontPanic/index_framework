@@ -12,6 +12,7 @@ serde = "1.0.141"
 itertools = "0.10.3"
 st_file = { git = "https://github.com/JojiiOfficial/st-file" }
 compressed_vec = { git = "https://github.com/JojiiOfficial/CompressedVec" }
+order_struct = { git = "https://github.com/JojiiOfficial/OrderStruct" }
 
 [dev-dependencies]
 criterion = "0.3.6"
