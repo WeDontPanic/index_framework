@@ -6,6 +6,7 @@ use index_framework::{
         storage::default::Storage,
         MemBackend,
     },
+    retrieve::retriever::default::DefaultRetrieve,
     traits::{
         backend::Backend,
         build::IndexBuilder,
@@ -134,7 +135,12 @@ where
     }
 
     fn test_retrieve_iter(&self) {
-        let res = self.index.retrieve().by_terms(["text"]).unique().get_all();
+        let res = self
+            .index
+            .retrieve()
+            .by_terms(["text"])
+            .unique()
+            .get_all::<DefaultRetrieve<_, _, _>>();
         assert_eq!(res, vec![3, 2, 1]);
     }
 }

@@ -4,8 +4,8 @@ use super::{
 };
 
 /// N-gram Index
-pub type NGIndex<const N: usize, T, S> =
-    MemBackend<T, S, FixDict<N>, storage::default::Storage<S>, postings::compressed::Postings>;
+pub type NGIndex<const N: usize, S> =
+    MemBackend<String, S, FixDict<N>, storage::default::Storage<S>, postings::compressed::Postings>;
 
 // Simple Index
 pub type Simple<T, S> = MemBackend<

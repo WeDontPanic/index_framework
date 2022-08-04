@@ -1,4 +1,4 @@
-pub mod iter;
+pub mod retriever;
 
 use crate::{
     traits::{
@@ -7,7 +7,8 @@ use crate::{
     },
     Index,
 };
-use iter::RetrieveIter;
+
+use retriever::Retriever;
 
 /// Retrieves stuff from an index
 #[derive(Clone)]
@@ -37,16 +38,22 @@ where
         }
     }
 
-    /// Shortcut for `.into_iter()`
+    /// Retrieve results
     #[inline]
-    pub fn get(self) -> RetrieveIter<'a, B, T, S> {
-        RetrieveIter::new(self)
+    pub fn get<R>(self) -> R
+    where
+        R: Retriever<'a, B, T, S>,
+    {
+        R::new(self)
     }
 
     /// Collects all items and returns them in a new vec
     #[inline]
-    pub fn get_all(self) -> Vec<S> {
-        RetrieveIter::new(self).collect()
+    pub fn get_all<R>(self) -> Vec<S>
+    where
+        R: Retriever<'a, B, T, S>,
+    {
+        self.get::<R>().collect()
     }
 
     #[inline]
@@ -167,6 +174,7 @@ where
     }
 }
 
+/*
 impl<'a, B, T, S> IntoIterator for Retrieve<'a, B, T, S>
 where
     B: Backend<T, S>,
@@ -182,3 +190,4 @@ where
         RetrieveIter::new(self)
     }
 }
+*/

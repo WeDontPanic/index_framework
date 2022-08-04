@@ -1,4 +1,4 @@
-use super::Retrieve;
+use super::{Retrieve, Retriever};
 use crate::{
     traits::{
         backend::Backend, deser::DeSer, dict_item::DictItem, postings::IndexPostings,
@@ -8,8 +8,8 @@ use crate::{
 };
 use std::collections::HashSet;
 
-/// Iterator over results of a retrieve query
-pub struct RetrieveIter<'a, B, T, S> {
+/// Default retriever algroithm. Optimized for normal retrievals
+pub struct DefaultRetrieve<'a, B, T, S> {
     retrieve: Retrieve<'a, B, T, S>,
 
     // Buffer for going over storage ids
@@ -18,15 +18,14 @@ pub struct RetrieveIter<'a, B, T, S> {
     seen: Option<HashSet<u32>>,
 }
 
-impl<'a, B, T, S> RetrieveIter<'a, B, T, S>
+impl<'a, B, T, S> Retriever<'a, B, T, S> for DefaultRetrieve<'a, B, T, S>
 where
     B: Backend<T, S>,
     T: DictItem,
     S: DeSer,
     <<B as Backend<T, S>>::Postings as IndexPostings>::List: IntoIterator<Item = u32>,
 {
-    #[inline]
-    pub(crate) fn new(retrieve: Retrieve<'a, B, T, S>) -> Self {
+    fn new(retrieve: Retrieve<'a, B, T, S>) -> Self {
         let seen = retrieve.unique.then(HashSet::new);
         Self {
             retrieve,
@@ -34,7 +33,15 @@ where
             seen,
         }
     }
+}
 
+impl<'a, B, T, S> DefaultRetrieve<'a, B, T, S>
+where
+    B: Backend<T, S>,
+    T: DictItem,
+    S: DeSer,
+    <<B as Backend<T, S>>::Postings as IndexPostings>::List: IntoIterator<Item = u32>,
+{
     #[inline]
     fn index(&self) -> &Index<B, T, S> {
         self.retrieve.index
@@ -86,7 +93,7 @@ where
     }
 }
 
-impl<'a, B, T, S> Iterator for RetrieveIter<'a, B, T, S>
+impl<'a, B, T, S> Iterator for DefaultRetrieve<'a, B, T, S>
 where
     B: Backend<T, S>,
     T: DictItem,
