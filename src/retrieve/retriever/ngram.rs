@@ -11,7 +11,7 @@ use crate::{
 use order_struct::OrderBy;
 use std::{
     cmp::Ordering,
-    collections::{BinaryHeap, HashMap},
+    collections::{BinaryHeap, HashMap, HashSet},
 };
 
 /// NGram optimized retriever
@@ -61,7 +61,7 @@ where
         let term_posts = self.make_terms_posings();
 
         // Map of StorageItemID -> MatchingTermCount
-        let itm_post_freqs = self.calc_post_freqs(&term_posts);
+        let itm_post_freqs = Self::calc_post_freqs(&term_posts);
 
         // Storage Item ids
         self.item_ids = Self::max_n(itm_post_freqs, self.retrieve.limit);
@@ -88,33 +88,28 @@ where
             .collect()
     }
 
-    fn calc_post_freqs(&self, term_posts: &[Vec<u32>]) -> HashMap<u32, u32> {
+    fn calc_post_freqs(term_posts: &[Vec<u32>]) -> HashMap<u32, u32> {
         let mut id_count: HashMap<u32, u32> = HashMap::new();
 
-        let mut tmp_sec: HashMap<u32, u32> = HashMap::new();
+        let mut seen: HashSet<u32> = HashSet::new();
+        let mut added = vec![];
+
         for (pos, postings) in term_posts.iter().enumerate() {
             for i in postings.iter() {
-                if id_count.contains_key(i) {
-                    continue;
+                if !seen.contains(i) {
+                    id_count.insert(*i, 1);
+                    added.push(*i);
                 }
-                tmp_sec.insert(*i, 1);
             }
 
             for list in term_posts.iter().skip(pos + 1) {
                 let lsi = LockStepIter::new(postings.iter(), list.iter());
-                for i in lsi {
-                    *tmp_sec.entry(*i).or_default() += 1;
+                for i in lsi.filter(|i| !seen.contains(*i)) {
+                    *id_count.entry(*i).or_default() += 1;
                 }
             }
 
-            for (k, v) in tmp_sec.iter() {
-                if id_count.contains_key(k) {
-                    continue;
-                }
-                id_count.insert(*k, *v);
-            }
-
-            tmp_sec.clear();
+            seen.extend(added.drain(..));
         }
 
         id_count
