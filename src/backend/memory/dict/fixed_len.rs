@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 /// String dictionary with a constant term width.
 /// Optimal for saving Ngrams efficiently
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct FixDict<const N: usize> {
     #[serde(with = "const_arr_deser")]
     data: Vec<[char; N]>,

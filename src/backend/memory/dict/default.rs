@@ -12,7 +12,7 @@ use st_file::{traits::IndexedAccess, MemFile};
 use std::marker::PhantomData;
 
 /// In memory dictionary
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Dictionary<T> {
     p: PhantomData<T>,
     data: MemFile,

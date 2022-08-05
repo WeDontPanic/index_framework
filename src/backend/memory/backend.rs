@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::io::Read;
 
 /// Completely in memory index backend
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct MemoryBackend<T, S> {
     dict: Dictionary<T>,
     postings_list: Vec<Postings>,

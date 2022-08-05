@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 use std::{io::Read, marker::PhantomData};
 
 /// Generic in-memory index backend to build any kinds of indexes
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct MemBackend<T, S, Dic, Stor, Post> {
     dict: Dic,
     postings_list: Vec<Post>,

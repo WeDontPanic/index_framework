@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use std::{marker::PhantomData, ops::Deref, path::Path};
 use traits::{deser::DeSer, dict_item::DictItem, postings::IndexPostings};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Index<B, T, S> {
     b: B,
     p1: PhantomData<T>,
