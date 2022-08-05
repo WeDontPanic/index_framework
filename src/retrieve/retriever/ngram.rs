@@ -5,9 +5,9 @@ use crate::{
         backend::Backend, deser::DeSer, dict_item::DictItem, postings::IndexPostings,
         storage::IndexStorage,
     },
-    utils::lock_step::LockStepIter,
     Index,
 };
+use intersect_iter::Intersect;
 use order_struct::OrderBy;
 use std::{
     cmp::Ordering,
@@ -101,7 +101,7 @@ where
             }
 
             for list in term_posts.iter().skip(pos + 1) {
-                let lsi = LockStepIter::new(postings.iter(), list.iter());
+                let lsi = Intersect::new(postings.iter(), list.iter());
                 for i in lsi.filter(|i| !seen.contains(*i)) {
                     *id_count.entry(*i).or_default() += 1;
                 }
