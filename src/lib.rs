@@ -8,7 +8,7 @@ use crate::traits::backend::Backend;
 use retrieve::Retrieve;
 use serde::{Deserialize, Serialize};
 use std::{marker::PhantomData, ops::Deref, path::Path};
-use traits::{deser::DeSer, dict_item::DictItem, postings::IndexPostings};
+use traits::{deser::DeSer, dict_item::DictItem};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Index<B, T, S> {
@@ -43,7 +43,6 @@ where
     B: Backend<T, S>,
     T: DictItem,
     S: DeSer,
-    <B as Backend<T, S>>::Postings: IndexPostings<List = Vec<u32>>,
 {
     #[inline]
     pub fn retrieve(&self) -> Retrieve<'_, B, T, S> {

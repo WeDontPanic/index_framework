@@ -79,10 +79,8 @@ impl Postings {
 }
 
 impl IndexPostings for Postings {
-    type List = Vec<u32>;
-
     #[inline]
-    fn get_posting(&self, id: u32) -> Self::List {
+    fn get_posting(&self, id: u32) -> Vec<u32> {
         self.get(id).unwrap_or_default()
     }
 

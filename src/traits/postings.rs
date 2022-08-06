@@ -3,10 +3,8 @@ use std::collections::HashMap;
 /// Postings are inverted mappings from a term to all items within the storage which
 /// are indexed to this term
 pub trait IndexPostings {
-    type List;
-
     /// Returns the postings-list with a given ID
-    fn get_posting(&self, id: u32) -> Self::List;
+    fn get_posting(&self, id: u32) -> Vec<u32>;
 
     /// Returns `true` if the posting storage has a
     /// posting list with the given ID
@@ -58,7 +56,7 @@ impl<'a, P> Iterator for PostingIter<'a, P>
 where
     P: IndexPostings,
 {
-    type Item = P::List;
+    type Item = Vec<u32>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {

@@ -1,10 +1,7 @@
 use super::{Retrieve, Retriever};
-use crate::{
-    traits::{
-        backend::Backend, deser::DeSer, dict_item::DictItem, postings::IndexPostings,
-        storage::IndexStorage,
-    },
-    Index,
+use crate::traits::{
+    backend::Backend, deser::DeSer, dict_item::DictItem, postings::IndexPostings,
+    storage::IndexStorage,
 };
 use std::collections::HashSet;
 
@@ -23,7 +20,6 @@ where
     B: Backend<T, S>,
     T: DictItem,
     S: DeSer,
-    <<B as Backend<T, S>>::Postings as IndexPostings>::List: IntoIterator<Item = u32>,
 {
     type Output = S;
 
@@ -46,13 +42,12 @@ where
 impl<'a, B, T, S> DefaultRetrieve<'a, B, T, S>
 where
     B: Backend<T, S>,
-    T: DictItem,
+    T: DictItem + Ord,
     S: DeSer,
-    <<B as Backend<T, S>>::Postings as IndexPostings>::List: IntoIterator<Item = u32>,
 {
     #[inline]
-    fn index(&self) -> &Index<B, T, S> {
-        self.retrieve.index
+    fn backend(&self) -> &B {
+        self.retrieve.backend
     }
 
     #[inline]
@@ -76,7 +71,7 @@ where
             let t_id = self.retrieve.terms.pop()?;
 
             for post_id in &self.retrieve.posting_ids {
-                let postings = match self.index().postings(*post_id) {
+                let postings = match self.backend().postings(*post_id) {
                     Some(p) => p,
                     None => continue,
                 };
@@ -106,7 +101,6 @@ where
     B: Backend<T, S>,
     T: DictItem,
     S: DeSer,
-    <<B as Backend<T, S>>::Postings as IndexPostings>::List: IntoIterator<Item = u32>,
 {
     type Item = S;
 
@@ -114,7 +108,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         let next_id = self.get_or_fill()?.pop().expect("Hit bug");
         let item = self
-            .index()
+            .backend()
             .storage()
             .get_item(next_id)
             .expect("Invalid index");

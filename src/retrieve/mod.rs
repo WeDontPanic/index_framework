@@ -1,11 +1,9 @@
 pub mod retriever;
 
-use crate::{
-    traits::{
-        backend::Backend, deser::DeSer, dict_item::DictItem, dictionary::IndexDictionary,
-        postings::IndexPostings,
-    },
-    Index,
+use std::marker::PhantomData;
+
+use crate::traits::{
+    backend::Backend, deser::DeSer, dict_item::DictItem, dictionary::IndexDictionary,
 };
 
 use retriever::Retriever;
@@ -13,11 +11,13 @@ use retriever::Retriever;
 /// Retrieves stuff from an index
 #[derive(Clone)]
 pub struct Retrieve<'a, B, T, S> {
-    index: &'a Index<B, T, S>,
+    backend: &'a B,
     limit: usize,
     unique: bool,
     terms: Vec<u32>,
     posting_ids: Vec<u32>,
+    p: PhantomData<T>,
+    p2: PhantomData<S>,
 }
 
 impl<'a, B, T, S> Retrieve<'a, B, T, S>
@@ -25,16 +25,17 @@ where
     B: Backend<T, S>,
     T: DictItem,
     S: DeSer,
-    <B as Backend<T, S>>::Postings: IndexPostings<List = Vec<u32>>,
 {
     #[inline]
-    pub(crate) fn new(index: &'a Index<B, T, S>) -> Self {
+    pub fn new(backend: &'a B) -> Self {
         Self {
-            index,
+            backend,
             unique: false,
             limit: 0,
             terms: vec![],
             posting_ids: vec![0],
+            p: PhantomData,
+            p2: PhantomData,
         }
     }
 
@@ -80,7 +81,7 @@ where
     where
         U: Into<T>,
     {
-        let id = self.index.dict().get_id(term);
+        let id = self.backend.dict().get_id(term);
         if let Some(id) = id {
             self.terms = vec![id];
         }
@@ -95,14 +96,14 @@ where
     {
         self.terms = terms
             .into_iter()
-            .filter_map(|i| self.index.dict().get_id(i))
+            .filter_map(|i| self.backend.dict().get_id(i))
             .collect();
         self
     }
 
     #[inline]
     pub fn by_term_id(mut self, t_id: u32) -> Self {
-        if self.index.dict().has_term_id(t_id) {
+        if self.backend.dict().has_term_id(t_id) {
             self.terms.push(t_id);
         }
         self
@@ -115,7 +116,7 @@ where
     {
         self.terms = t_ids
             .into_iter()
-            .filter(|i| self.index.dict().has_term_id(*i))
+            .filter(|i| self.backend.dict().has_term_id(*i))
             .collect();
         self
     }
@@ -125,7 +126,7 @@ where
     where
         U: Into<T>,
     {
-        let id = self.index.dict().get_id(term);
+        let id = self.backend.dict().get_id(term);
         if let Some(id) = id {
             self.terms.push(id);
         }
@@ -140,14 +141,14 @@ where
     {
         let iter = terms
             .into_iter()
-            .filter_map(|i| self.index.dict().get_id(i));
+            .filter_map(|i| self.backend.dict().get_id(i));
         self.terms.extend(iter);
         self
     }
 
     #[inline]
     pub fn add_term_id(mut self, t_id: u32) -> Self {
-        if self.index.dict().has_term_id(t_id) {
+        if self.backend.dict().has_term_id(t_id) {
             self.terms.push(t_id);
         }
         self
@@ -160,7 +161,7 @@ where
     {
         let iter = t_ids
             .into_iter()
-            .filter(|i| self.index.dict().has_term_id(*i));
+            .filter(|i| self.backend.dict().has_term_id(*i));
         self.terms.extend(iter);
         self
     }

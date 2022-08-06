@@ -5,7 +5,6 @@ use crate::{
         backend::Backend, deser::DeSer, dict_item::DictItem, postings::IndexPostings,
         storage::IndexStorage,
     },
-    Index,
 };
 use intersect_iter::Intersect;
 use order_struct::OrderBy;
@@ -26,7 +25,6 @@ where
     B: Backend<T, S>,
     T: DictItem,
     S: DeSer,
-    <B as Backend<T, S>>::Postings: IndexPostings<List = Vec<u32>>,
 {
     type Output = S;
 
@@ -51,7 +49,6 @@ where
     B: Backend<T, S>,
     T: DictItem,
     S: DeSer,
-    <B as Backend<T, S>>::Postings: IndexPostings<List = Vec<u32>>,
 {
     /// Loads all required stuff for the iterator. Returns `None` if there is no such
     fn setup(&mut self) -> Option<()> {
@@ -79,7 +76,7 @@ where
             .iter()
             .flat_map(|i| {
                 self.retrieve.posting_ids.iter().filter_map(|pid| {
-                    let postings = self.index().postings(*pid)?.get_posting(*i);
+                    let postings = self.backend().postings(*pid)?.get_posting(*i);
                     (!postings.is_empty()).then(|| postings)
                 })
             })
@@ -140,8 +137,8 @@ where
     }
 
     #[inline]
-    fn index(&self) -> &Index<B, T, S> {
-        self.retrieve.index
+    fn backend(&self) -> &B {
+        self.retrieve.backend
     }
 }
 
@@ -150,7 +147,6 @@ where
     B: Backend<T, S>,
     T: DictItem,
     S: DeSer,
-    <B as Backend<T, S>>::Postings: IndexPostings<List = Vec<u32>>,
 {
     type Item = S;
 
@@ -161,6 +157,6 @@ where
         }
 
         let item_id = self.item_ids.pop()?;
-        Some(self.index().storage().get_item(item_id).unwrap())
+        Some(self.backend().storage().get_item(item_id).unwrap())
     }
 }
