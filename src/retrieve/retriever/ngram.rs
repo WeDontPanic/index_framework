@@ -18,6 +18,7 @@ pub struct NGramRetriever<'a, const N: usize, B, T, S> {
     retrieve: Retrieve<'a, B, T, S>,
     item_ids: Vec<u32>,
     did_setup: bool,
+    seen: Option<HashSet<u32>>,
 }
 
 impl<'a, const N: usize, B, T, S> Retriever<'a, B, T, S> for NGramRetriever<'a, N, B, T, S>
@@ -31,10 +32,12 @@ where
     #[inline]
     fn new(mut retr: Retrieve<'a, B, T, S>) -> Self {
         retr.terms.sort_unstable();
+        let seen = retr.unique.then(HashSet::new);
         Self {
             retrieve: retr,
             item_ids: vec![],
             did_setup: false,
+            seen,
         }
     }
 
