@@ -167,10 +167,7 @@ where
     }
 
     #[inline]
-    pub fn in_posting<I>(mut self, p: u32) -> Self
-    where
-        I: IntoIterator<Item = u32>,
-    {
+    pub fn in_posting(mut self, p: u32) -> Self {
         self.posting_ids = vec![p];
         self
     }
