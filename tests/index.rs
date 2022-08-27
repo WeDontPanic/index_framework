@@ -54,7 +54,7 @@ struct TestSet<D, S, P>
 where
     D: IndexDictionary<String>,
     S: IndexStorage<u32>,
-    P: IndexPostings<List = Vec<u32>>,
+    P: IndexPostings,
 {
     index: Index<MemBackend<String, u32, D, S, P>, String, u32>,
 
@@ -68,7 +68,7 @@ where
 fn new_testset<D, P, S, BD, BP, BS>() -> TestSet<D, S, P>
 where
     D: IndexDictionary<String> + DeSer,
-    P: IndexPostings<List = Vec<u32>> + DeSer,
+    P: IndexPostings + DeSer,
     S: IndexStorage<u32> + DeSer,
     BD: BuildIndexDictionary<String, Output = D>,
     BP: BuildPostings<Output = P, PostingList = Vec<u32>>,
@@ -108,7 +108,7 @@ impl<D, S, P> TestSet<D, S, P>
 where
     D: IndexDictionary<String> + DeSer,
     S: IndexStorage<u32> + DeSer,
-    P: IndexPostings<List = Vec<u32>> + DeSer,
+    P: IndexPostings + DeSer,
 {
     fn test(&self) {
         self.test_index();

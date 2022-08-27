@@ -26,18 +26,23 @@ impl Postings {
         let mut index = CVec::new();
         let mut data = CVec::new();
 
-        let mut prev_term_id: Option<u32> = None;
+        let mut prev_id: Option<u32> = None;
+
+        let first = *map.iter().map(|i| i.0).min().unwrap();
+        for _ in 0..first {
+            index.push(0);
+        }
 
         for (term_id, item_ids) in map.into_iter().sorted_by(|a, b| a.0.cmp(&b.0)) {
-            if prev_term_id.is_none() {
-                prev_term_id = Some(term_id);
+            if prev_id.is_none() {
+                prev_id = Some(term_id);
             }
 
             // Fill non mapped dimensions with 0s to make the CVS replace a HashMap
-            let ld = prev_term_id.as_ref().unwrap();
+            let ld = prev_id.as_ref().unwrap();
             for _ in ld + 1..term_id {
                 index.push(data.len() as u32);
-                //data.push(0);
+                data.push(0);
             }
 
             // Push index indice
@@ -47,7 +52,7 @@ impl Postings {
             data.push(item_ids.len() as u32);
             data.extend(item_ids);
 
-            prev_term_id = Some(term_id);
+            prev_id = Some(term_id);
         }
 
         Self { index, data }

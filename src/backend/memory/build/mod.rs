@@ -144,6 +144,10 @@ where
                 self.postings_mod
                     .apply(post_id as u32, t_id, &mut ids, self);
 
+                if ids.is_empty() {
+                    continue;
+                }
+
                 tmp_map.insert(t_id, ids);
             }
 
