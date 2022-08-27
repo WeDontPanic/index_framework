@@ -42,7 +42,7 @@ impl Postings {
             let ld = prev_id.as_ref().unwrap();
             for _ in ld + 1..term_id {
                 index.push(data.len() as u32);
-                data.push(0);
+                //data.push(0);
             }
 
             // Push index indice
