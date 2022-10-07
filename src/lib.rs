@@ -7,7 +7,11 @@ pub mod utils;
 use crate::traits::backend::Backend;
 use retrieve::Retrieve;
 use serde::{Deserialize, Serialize};
-use std::{marker::PhantomData, ops::Deref, path::Path};
+use std::{
+    marker::PhantomData,
+    ops::{Deref, DerefMut},
+    path::Path,
+};
 use traits::{deser::DeSer, dict_item::DictItem};
 
 #[derive(Serialize, Deserialize, Default)]
@@ -56,5 +60,12 @@ impl<B, T, S> Deref for Index<B, T, S> {
     #[inline]
     fn deref(&self) -> &Self::Target {
         &self.b
+    }
+}
+
+impl<B, T, S> DerefMut for Index<B, T, S> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.b
     }
 }

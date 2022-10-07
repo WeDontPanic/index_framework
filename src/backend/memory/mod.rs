@@ -6,7 +6,7 @@ pub mod presets;
 pub mod storage;
 
 use crate::traits::{
-    backend::{Backend, NewBackend},
+    backend::{Backend, BeStorageMut, NewBackend},
     deser::DeSer,
     dict_item::DictItem,
     dictionary::IndexDictionary,
@@ -67,6 +67,20 @@ where
     #[inline]
     fn storage(&self) -> &Self::Storage {
         &self.storage
+    }
+}
+
+impl<T, S, Dic, Stor, Post> BeStorageMut<T, S> for MemBackend<T, S, Dic, Stor, Post>
+where
+    Dic: IndexDictionary<T> + DeSer,
+    Stor: IndexStorage<S> + DeSer,
+    Post: IndexPostings + DeSer,
+    T: DictItem,
+    S: DeSer,
+{
+    #[inline]
+    fn storage_mut(&mut self) -> &mut Self::Storage {
+        &mut self.storage
     }
 }
 

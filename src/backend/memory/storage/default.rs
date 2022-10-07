@@ -1,7 +1,7 @@
 use crate::traits::{
     build::ItemMod,
     deser::DeSer,
-    storage::{BuildIndexStorage, IndexStorage},
+    storage::{BuildIndexStorage, IndexStorage, IndexStorageMod},
 };
 use serde::{Deserialize, Serialize};
 use st_file::{traits::IndexedAccess, MemFile};
@@ -45,6 +45,13 @@ impl<S: DeSer> IndexStorage<S> for Storage<S> {
     #[inline]
     fn len(&self) -> usize {
         self.data.len()
+    }
+}
+
+impl<S: DeSer> IndexStorageMod<S> for Storage<S> {
+    #[inline]
+    fn set_item(&mut self, id: u32, new: S) -> bool{
+        self.data.replace(id as usize, &new.encode_vec()).is_some()
     }
 }
 

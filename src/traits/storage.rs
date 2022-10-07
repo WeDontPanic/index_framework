@@ -27,6 +27,10 @@ pub trait IndexStorage<I> {
     }
 }
 
+pub trait IndexStorageMod<I>: IndexStorage<I> {
+    fn set_item(&mut self, id: u32, new: I) -> bool;
+}
+
 pub trait BuildIndexStorage<T> {
     type Output;
 

@@ -68,6 +68,14 @@ where
     }
 }
 
+pub trait BeStorageMut<T, S>: Backend<T, S>
+where
+    T: DictItem,
+    S: DeSer,
+{
+    fn storage_mut(&mut self) -> &mut Self::Storage;
+}
+
 pub trait NewBackend<T, S>: Backend<T, S>
 where
     T: DictItem,
