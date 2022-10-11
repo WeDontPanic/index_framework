@@ -190,9 +190,17 @@ where
     fn map(&mut self, postings_id: u32, item: u32, terms: &[u32]) {
         let unique_postings = self.has_option(&BuildOption::UniquePostings);
 
-        let postings = self
-            .postings_mut(postings_id as usize)
-            .expect("Invalid postings index");
+        let postings = self.postings_mut(postings_id as usize);
+
+        if postings.is_none() {
+            let postings_count = self.postings_count();
+            panic!(
+                "Invalid postings index {} of {}",
+                postings_id, postings_count,
+            );
+        }
+
+        let postings = postings.unwrap();
 
         for term in terms {
             let entry = postings.entry(*term).or_default();
