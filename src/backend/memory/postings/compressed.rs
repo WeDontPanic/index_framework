@@ -28,7 +28,7 @@ impl Postings {
 
         let mut prev_id: Option<u32> = None;
 
-        let first = *map.iter().map(|i| i.0).min().unwrap();
+        let first = *map.iter().map(|i| i.0).min().unwrap_or(&0);
         for _ in 0..first {
             index.push(0);
         }

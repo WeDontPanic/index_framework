@@ -8,7 +8,7 @@ authors = ["Jojii <Jojii ät gmx.net>"]
 
 [dependencies]
 bincode = "1.3.3"
-serde = "1.0.145"
+serde = "1.0.147"
 itertools = "0.10.5"
 st_file = { git = "https://github.com/JojiiOfficial/st-file" }
 compressed_vec = { git = "https://github.com/JojiiOfficial/CompressedVec" }

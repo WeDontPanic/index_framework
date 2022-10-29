@@ -4,7 +4,10 @@ use crate::traits::{
     storage::{BuildIndexStorage, IndexStorage, IndexStorageMod},
 };
 use serde::{Deserialize, Serialize};
-use st_file::{traits::IndexedAccess, MemFile};
+use st_file::{
+    traits::{IndexedAccess, IndexedAccessMut},
+    MemFile,
+};
 use std::marker::PhantomData;
 
 /// An in-memory storage for index items
@@ -50,7 +53,7 @@ impl<S: DeSer> IndexStorage<S> for Storage<S> {
 
 impl<S: DeSer> IndexStorageMod<S> for Storage<S> {
     #[inline]
-    fn set_item(&mut self, id: u32, new: S) -> bool{
+    fn set_item(&mut self, id: u32, new: S) -> bool {
         self.data.replace(id as usize, &new.encode_vec()).is_some()
     }
 }
